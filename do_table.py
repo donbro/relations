@@ -26,6 +26,8 @@ mytemplate = mylookup.get_template("table.mako")
 
 # mytemplate = Template(filename='mako/table.mako.txt', input_encoding='utf-8', output_encoding='utf-8', module_directory='/tmp/mako_modules')
 
+import mysql.connector
+cnx = mysql.connector.connect(user='root', password='',host='127.0.0.1',database='relations')
 
 
 try:
@@ -34,6 +36,7 @@ try:
             'title':        "The relation " + relation_name, 
             'relation_name':     relation_name, 
             'classname':        "template library", 
+            'cnx':              cnx, 
             'tagline':      "Hyperfast relation and lightweight templating for the Python platform" 
             }
 

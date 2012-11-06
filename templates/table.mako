@@ -12,12 +12,10 @@
 
 <%!
 
-import mysql.connector
+#import mysql.connector
 from pprint import pprint
 
-cnx = mysql.connector.connect(user='root', password='',host='127.0.0.1',database='relations')
-
-cur = cnx.cursor()
+#cnx = mysql.connector.connect(user='root', password='',host='127.0.0.1',database='relations')
 
 """You can't slice a generator directly in python. 
     You could use itertools.islice() as a helper function to do so. 
@@ -47,18 +45,13 @@ Sometimes it is useful to be able to directly write Python code in templates. Th
 
 </%doc>
 
-<br>
-Mako template context is:
+
 <%
 
+cnx = context.get("cnx")
+cur = cnx.cursor()
 
-#pprint(dict(context))
 
-#print("${context.keys()} is:")
-
-#pprint(context.__dict__)
-
-#print relation_name
 if relation_name == u"relations":
     query = "select attr1,dom1,dom2,attr2 from relations_view"
 elif relation_name == u"domains":
@@ -154,6 +147,7 @@ The key is <tt>${key}</tt>, the value is ${str(context.get(key))}. <br />
 </p>
 
 
+<%doc>
 <ul>
 % for a in dict(context):
     <li>
@@ -167,6 +161,7 @@ The key is <tt>${key}</tt>, the value is ${str(context.get(key))}. <br />
 % endfor
 </ul>
 
+</%doc>
 
 <table cellspacing="0" cellpadding="0" class="t1">
   <tbody>
