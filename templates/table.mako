@@ -21,26 +21,14 @@ Therefore, this code does not have access to the template’s context and is onl
 (which can be only once per application, or more, depending on the runtime environment). 
 Use the <%! %> tags to declare your template’s imports, as well as any pure-Python functions you might want to declare
 
-</%doc>
-
-
 <%!
-
-
-from pprint import pprint
-
-
-"""You can't slice a generator directly in python. 
-    You could use itertools.islice() as a helper function to do so. 
-    itertools.islice(generator, start, stop, step) 
-    Remember, slicing a generator will exhaust it partially. 
-    If you want to keep the entire generator intact, 
-    perhaps turn it into a tuple or list first: result = tuple(generator)
-    """
 
 import itertools
 
 %>
+
+</%doc>
+
 
 <%doc>
 
@@ -73,32 +61,17 @@ Sometimes it is useful to be able to directly write Python code in templates. Th
 
 #   columns = [d[0].decode('utf8') for d in cur.description] 
 
-#   [u'attr1', u'dom1', u'dom2', u'attr2']
 
-result = []
 
-for row in cur:
-    result.append(row)
-    # print row
-    #   (u'Albert Einstein', u'author', u'work', u'Electrodynamics of Moving Bodies')
-
-#zz = result[0]  # list of dicts
-#zzd = zz.keys()
-#zzv0 = zz.values()
-
-# {u'id': u'n000001', u'name': u'gronk'}
-
-pprint( result )
-
+cur_rows =  [ row  for row in cur ]
         
 %>
 
-<%text>
-Using <%def> Blocks¶
-A def block is rather like a Python function in that each def block has a name, can accept arguments, and can be called. 
-</%text>
+##
+##  def format_relation()
+##
 
-<%def name="format_relation(rel_name, columns, valign='middle',)">
+<%def name="format_relation(rel_name, column_names, in_rows, in_valign='middle', row_cell_class='p4', in_rowcount=None,)">
 
     <%def name="link(label, url)">
         % if url:
@@ -108,54 +81,56 @@ A def block is rather like a Python function in that each def block has a name, 
         % endif
     </%def>
 
-##
-##      small table to hold relation name
-##
+    <% 
+        if in_rowcount == None:
+            in_rowcount = len(in_rows)
+    %> 
 
-<table cellspacing="0" cellpadding="0" class="t1">
-  <tbody>
-    <tr>
-      <td valign="middle" class="td1">
-        <p class="p1"><b>${rel_name}</b></p>
-      </td>
-    </tr>
-  </tbody>
-</table>
+    ##
+    ##      single-cell table for display of relation name
+    ##
 
-##
-##      main table for relation contents
-##
+    <table cellspacing="0" cellpadding="0" class="t1">
+    <tbody>
+        <tr>
+        <td valign="middle" class="td1">
+            <p class="p1"><b>${rel_name}</b></p>
+        </td>
+        </tr>
+    </tbody>
+    </table>
 
-<table cellspacing="0" cellpadding="0" class="t1">
-  <tbody>
+    ##
+    ##      main table for relation contents
+    ##
 
-    ##  relation header
+    <table cellspacing="0" cellpadding="0" class="t1">
+        <tbody>
 
-    <tr>
-        % for column_name in columns:
-      <td valign="middle" class="td2">
-        <p class="p3"><b>${column_name}</b></p>
-      </td>
+        ##  relation header
+
+        <tr>
+            % for column_name in column_names:
+            <td valign="middle" class="td2">
+                <p class="p3"><b>${column_name}</b></p>
+            </td>
+            % endfor
+        </tr>
+
+        ##  relation rows
+## <tt>${key}</tt>
+        % for in_row in in_rows[ 0 : in_rowcount]:
+            <tr>
+                %   for b in in_row:
+                    <td valign="${in_valign}" class="td3">
+                        <p class=${row_cell_class}>${b|entity}</p>
+                    </td>
+                %   endfor
+            </tr>
         % endfor
-    </tr>
 
-    ##  rows
-
-        ## % for a in result:
-        ## grab the first rowcount elements
-        
-        % for a in itertools.islice(result, 0, min(rowcount,len(result)) ): 
-    <tr>
-        %   for b in a:
-      <td valign="middle" class="td3">
-        <p class="p4">${b|entity}</p>
-      </td>
-        %   endfor
-    </tr>
-        % endfor
-
-  </tbody>
-</table>
+    </tbody>
+    </table>
 
 
 </%def>
@@ -180,6 +155,8 @@ A def block is rather like a Python function in that each def block has a name, 
     
     p.p46 {margin: 0.0px 0.0px 0.0px 0.0px; font: 30.0px 'Chaparral Pro'; background-color: #b6b5b5}
 
+    p.p47 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: left; font: 12.0px Courier; background-color: #ffefcf}
+
     p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; height: 12.0px; font: 14.0px 'Myriad Pro'}
     p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 14.0px 'Myriad Pro'; min-height: 18.0px}
     span.s1 {font: 14.0px 'Avenir Next LT Pro'; color: #00296f}
@@ -194,20 +171,30 @@ A def block is rather like a Python function in that each def block has a name, 
 <body>
 
 <br>
-<code>
 <%text>
 
 This tag suspends the Mako lexer’s normal parsing of Mako template directives, and returns its entire body contents as plain text. It is used pretty much to write documentation about Mako:
 
+<code>
 <%text filter="h">
     heres some fake mako ${syntax}
     <%def name="x()">${x}</%def>
 </%text>
 </code>
 
+
+<br>
+<%text>
+Using <%def> Blocks¶
+A def block is rather like a Python function in that each def block has a name, can accept arguments, and can be called. 
+</%text>
+
 <p class="p2"><br>
+<br>
+<%text>
 <b>Expression Substitution</b>
-The simplest expression is just a variable substitution. The syntax for this is the \$\{\} construct, which is inspired by Perl, Genshi, JSP EL, and others.
+The simplest expression is just a variable substitution. The syntax for this is the ${} construct, which is inspired by Perl, Genshi, JSP EL, and others.
+</%text>
 </p>
 
 <p class="p3"><br></p>
@@ -251,6 +238,10 @@ The key is <tt>${key}</tt>, the value is ${str(context.get(key))}. <br />
 
 </%doc>
 
+<br>
+${format_relation("mako runtime context", [u"key", u"value"] , dict(context).items(), row_cell_class="p47", in_valign="right" )}
+<br>
+
 <table cellspacing="0" cellpadding="0" class="t1">
   <tbody>
 
@@ -272,10 +263,9 @@ The key is <tt>${key}</tt>, the value is ${str(context.get(key))}. <br />
 
 <%doc>
 
-#pprint(dict(context))
 
 <ul>
-% for a in result:
+% for a in cur_rows:
     <li>
     <p class="p2">
     Item ${loop.index}:
@@ -290,7 +280,7 @@ The key is <tt>${key}</tt>, the value is ${str(context.get(key))}. <br />
 </%doc>
 
 <br>
-${format_relation(rel_name, columns)}
+${format_relation(rel_name, columns, cur_rows, in_rowcount=rowcount)}
 <br>
 
 ##
@@ -342,7 +332,7 @@ ${format_relation(rel_name, columns)}
     ##
 
         ## % for a in result:
-        % for a in itertools.islice(result, 0, rowcount): # grab the first three elements
+        % for a in cur_rows[ 0 : rowcount]:
     <tr>
         %   for b in a:
       <td valign="middle" class="td3">
@@ -374,8 +364,8 @@ ${format_relation(rel_name, columns)}
 <p class="p1">The tuples of table ${rel_name} can be read as:</p>
 <p class="p2"><br></p>
 
-## % for row in result[0:3]:
-% for row in itertools.islice(result, 0, 3): # grab the first three elements
+## % for row in rows[0:3]:
+% for row in cur_rows[ 0 : rowcount]:
 
 <%
 if row[0][0] in "aeiouy":

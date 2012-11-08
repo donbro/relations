@@ -43,6 +43,11 @@ cur.execute( query )
 
 columns = [d[0].decode('utf8') for d in cur.description]
 
+#rows =  [    row  for row in cur ]
+#x =  [   [ t for t in r]  for r in s ]
+
+
+
 try:
 
     d = { 
