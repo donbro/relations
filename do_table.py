@@ -48,6 +48,15 @@ columns = [d[0].decode('utf8') for d in cur.description]
 
 
 
+
+"""You can't slice a generator directly in python.
+    You could use itertools.islice() as a helper function to do so.
+    itertools.islice(generator, start, stop, step)
+    Remember, slicing a generator will exhaust it partially.
+    If you want to keep the entire generator intact,
+    perhaps turn it into a tuple or list first: result = tuple(generator)
+    """
+
 try:
 
     d = { 
@@ -56,7 +65,7 @@ try:
             'classname':            "template library", 
             'cur':              cur, 
             'columns':              columns, 
-            'rowcount':         6,
+            'rowcount':         8,
             'calling_filename':         filename,
             'tagline':      "Hyperfast relation and lightweight templating for the Python platform" 
             }

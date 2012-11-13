@@ -11,7 +11,7 @@
  Target Server Version : 50515
  File Encoding         : utf-8
 
- Date: 11/13/2012 14:50:28 PM
+ Date: 11/13/2012 16:03:08 PM
 */
 
 SET NAMES utf8;
@@ -68,6 +68,12 @@ delimiter ;;
 CREATE TRIGGER `trigger_after_insert_names` AFTER INSERT ON `names` FOR EACH ROW SET @name_ID = (select name_id from names where new.name_id = names.name_id);
  ;;
 delimiter ;
+
+-- ----------------------------
+--  View structure for `domains_view`
+-- ----------------------------
+DROP VIEW IF EXISTS `domains_view`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `domains_view` AS select `d`.`dom_id` AS `dom_id`,`d`.`superdom_id` AS `superdom_id`,`a`.`name` AS `superdom_name`,`d`.`dom_name_id` AS `dom_name_id`,`b`.`name` AS `dom_name` from (((`domains` `d` left join `names` `b` on((`b`.`name_id` = `d`.`dom_name_id`))) left join `domains` `s` on((`d`.`superdom_id` = `s`.`dom_id`))) left join `names` `a` on((`s`.`dom_name_id` = `a`.`name_id`)));
 
 -- ----------------------------
 --  View structure for `relations_view`
@@ -141,7 +147,7 @@ BEGIN
 
 -- register the super_name, get corresponding namd_id:
 
-call name_quiet(super_name_in) ; 
+call names_quiet(super_name_in) ; 
 set @super_name_id = @name_id;
 
 -- select * from names where nid = @super_name_id;
@@ -153,20 +159,15 @@ set @super_name_id = @name_id;
 
 set @n = ( select count(*) from domains where dom_name_id = @super_name_id );
 
-select @n;
+-- select @n;
+-- select  concat(   @n, ' domain(s) found for name "', super_name_in, '".'  ) as message ; 
 
 set @superdom_id = ( select dom_id from domains where dom_name_id = @super_name_id );
 
-select @superdom_id;
-
-
-select * from domains where dom_id = @superdom_id;
+-- select @superdom_id;
 
 select * from domains_view where dom_id = @superdom_id;
 
-select  concat(   @n, ' domain(s) found for name "', super_name_in, '".'  ) as message ; 
-
-select * from domains_view where dom_id = @superdom_id;
 
 if @n >= 2 THEN
 
@@ -197,46 +198,54 @@ END IF;
 
 /* okay.  now have @superdom_id set to the created/found domain ID we want as our superdomain. */
 
-call name_quiet(dom_name_in) ; 
+call names_quiet(dom_name_in) ; 
 
 set @dom_name_id = @name_id;
 
-select * from names where nid = @dom_name_id;
+-- select * from names where name_id = @dom_name_id;
 
 
 set @n2 = ( select count(*) from domains where superdom_id = @superdom_id and  dom_name_id = @dom_name_id );
+set @n3 = ( select count(*) from domains where superdom_id = "" and  dom_name_id = @dom_name_id );
 
-select @n2;
+-- select @n2;
+
+select  concat(   @n2, ' domain(s) found for name "', dom_name_in, '" and super domain "' , super_name_in , '".'  ) as message ; 
+
+
 
 if @n2 = 0 THEN
-	select "gronk";
+--	select "gronk";
 
-insert into  domains (superdom_id, dom_name_id) values (@superdom_id, @dom_name_id) ;
+	if @n3 >= 0 THEN
 
-set @dom_id = @domain_id;
 
-select  * from domains_view where  dom_id = @dom_id;
+		select  concat(   @n3, ' top-level domain(s) found for name "', dom_name_in, '" and *no* super domain.'  ) as message ; 
+
+		set @dom_id = ( select dom_id from domains where superdom_id = "" and  dom_name_id = @dom_name_id );
+
+
+		update domains set superdom_id = @superdom_id where  dom_id = @dom_id;
+
+	else
+		insert into  domains (superdom_id, dom_name_id) values (@superdom_id, @dom_name_id) ;
+
+		set @dom_id = @domain_id;
+
+	END if;
+
+
+		select  * from domains_view where  dom_id = @dom_id;
 
 else
-	select "grink";
+--	select "grink";
 
-set @dom_id = (select dom_id from domains where superdom_id = @superdom_id and  dom_name_id = @dom_name_id) ;
+	set @dom_id = (select dom_id from domains where superdom_id = @superdom_id and  dom_name_id = @dom_name_id) ;
 
--- end if
-
-
-select * from domains_view where superdom_id = @superdom_id and  dom_name_id = @dom_name_id  ;
-select * from domains_view where dom_id = @dom_id  ;
-
-
- 
+	select * from domains_view where superdom_id = @superdom_id and  dom_name_id = @dom_name_id  ;
+	select * from domains_view where dom_id = @dom_id  ;
 
 end if;
-
--- IF (select count(*) from domains where superdom_id = @superdom_id and  dom_name_id = @dom_name_id) = 0 THEN
-
-
--- else
 
 
 end
@@ -293,8 +302,7 @@ BEGIN
 
 	insert into relations.names set name = name_in ; 
 	 
-
-	-- select * from names where nid = @name_ID; 
+	--	select * from names where name_id = @name_ID; 
 
 END
  ;;

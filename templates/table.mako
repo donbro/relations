@@ -94,7 +94,10 @@ because the mako runtime will automatically have executed a statement like:
 
     p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; height: 12.0px; font: 14.0px 'Myriad Pro'}
     p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 14.0px 'Myriad Pro'; min-height: 18.0px}
+
     span.s1 {font: 14.0px 'Avenir Next LT Pro'; color: #00296f}
+    span.s2 {font: 14.0px 'MyriadPro-Semibold'}
+
     table.t1 {border-collapse: collapse}
     td.td1 {background-color: #d9d9d9; padding: 0.0px 5.0px 0.0px 5.0px}
     td.td2 {background-color: #d9d9d9; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #c4c4c4 #c4c4c4 #c4c4c4 #c4c4c4; padding: 0.0px 5.0px 0.0px 5.0px}
@@ -136,15 +139,28 @@ else:
    ar = "a"
 %>
 
-% if rel_name == "domains":
-<p class="p45"><b>${row[1]}</b> is an example of ${ar} <span class="s1">${row[0]}</span></p>
-<p class="p45"><span class="s1">${row[0]}</span> is the superclass for <span class="s1">${row[1]}</span></p>
-% elif rel_name == "names":
-<p class="p45"><b>${row[1]}</b> is the string at id <span class="s1">${row[0]}</span></p>
-<p class="p45"><b>${row[0]}</b> is an id for the string <span class="s1">${row[1]}</span></p>
-% else:
-<p class="p45"><b>${row[1]}</b> is ${ar} <span class="s1">${row[0]}</span></p>
-% endif
+## <span class="s1">   <== the avant garde "ideal symbol" font
+## <span class="s2">   <== Myriad Pro Semibold, the "being defined" font
+
+<% 
+    if rel_name == "domains":
+        s = '<span class="s2">'+row[1]+'</span> is an example of ' + ar + ' <span class="s1">'+row[0]+'</span>'
+        s = s + '<br>' + '<span class="s1">' + row[0] +'</span> is the superclass for <span class="s2">'+row[1]+'</span>'
+##<p class="p45"><span class="s2">${row[1]}</span> is an example of ${ar} <span class="s1">${row[0]}</span></p>
+##<p class="p45"><span class="s1">${row[0]}</span> is the superclass for <span class="s1">${row[1]}</span></p>
+    elif rel_name == "names":
+        s = '<span class="s2">'+row[1]+'</span> is the string at id <span class="s1">'+row[0]+'</span>'
+        s = s + '<br>' + '<span class="s2">'+row[0]+'</span> is an id for the string ' + ' <span class="s1">'+row[1]+'</span>'
+##<p class="p45"><span class="s2">${row[1]}</span> is the string at id <span class="s1">${row[0]}</span></p>
+##<p class="p45"><span class="s2">${row[0]}</span> is an id for the string <span class="s1">${row[1]}</span></p>
+    else:
+        s = '<span class="s2">'+row[1]+'</span> is an example of ' + ar + ' <span class="s1">'+row[0]+'</span></p>'
+        s = s + '<br>' + '<span class="s2">'+row[0]+'</span> is the superclass for ' + ' <span class="s1">'+row[1]+'</span></p>'
+##<p class="p45"><span class="s2">${row[1]}</span> is ${ar} <span class="s1">${row[0]}</span></p>
+
+%>
+
+<p class="p45">${s}</p>
 
 <p class="p6"><br></p>
 
