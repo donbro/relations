@@ -39,7 +39,7 @@ Use the <%! %> tags to declare your template’s imports, as well as any pure-Py
 #   accessing run-time variables must be executed in a python block
 #   (the module-level blocks do not have access to the context variable).
 
-cur_rows =  [row for row in cur]
+# cur_rows =  [row for row in cur]
         
 %>
 
@@ -103,6 +103,7 @@ because the mako runtime will automatically have executed a statement like:
     td.td2 {background-color: #d9d9d9; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #c4c4c4 #c4c4c4 #c4c4c4 #c4c4c4; padding: 0.0px 5.0px 0.0px 5.0px}
     td.td3 {height: 42.0px; border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #c4c4c4 #c4c4c4 #c4c4c4 #c4c4c4; padding: 0.0px 5.0px 0.0px 5.0px}
     td.td4 {border-style: solid; border-width: 1.0px 1.0px 1.0px 1.0px; border-color: #c4c4c4 #c4c4c4 #c4c4c4 #c4c4c4; padding: 0.0px 5.0px 0.0px 5.0px}
+
   </style>
 </head>
 
@@ -143,6 +144,7 @@ else:
 ## <span class="s2">   <== Myriad Pro Semibold, the "being defined" font
 
 <% 
+"""
     if rel_name == "domains":
         s = '<span class="s2">'+row[1]+'</span> is an example of ' + ar + ' <span class="s1">'+row[0]+'</span>'
         s = s + '<br>' + '<span class="s1">' + row[0] +'</span> is the superclass for <span class="s2">'+row[1]+'</span>'
@@ -157,10 +159,11 @@ else:
         s = '<span class="s2">'+row[1]+'</span> is an example of ' + ar + ' <span class="s1">'+row[0]+'</span></p>'
         s = s + '<br>' + '<span class="s2">'+row[0]+'</span> is the superclass for ' + ' <span class="s1">'+row[1]+'</span></p>'
 ##<p class="p45"><span class="s2">${row[1]}</span> is ${ar} <span class="s1">${row[0]}</span></p>
+"""
 
 %>
 
-<p class="p45">${s}</p>
+##<p class="p45">${s}</p>
 
 <p class="p6"><br></p>
 

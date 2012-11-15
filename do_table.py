@@ -35,19 +35,28 @@ cur = cnx.cursor()
 if rel_name == u"relations":
     query = "select attr1,dom1,dom2,attr2 from relations_view"
 elif rel_name == u"domains":
-    query = "select dom_name, attr_name from domains_view"
+    # query = "select dom_name, attr_name from domains_view"
+    query = "select * from domains_view"
 else:
     query = "SELECT * from " + rel_name
 
 cur.execute( query )
+#print cur.description
 
 columns = [d[0].decode('utf8') for d in cur.description]
+column_types = [d[1] for d in cur.description]
 
 #rows =  [    row  for row in cur ]
 #x =  [   [ t for t in r]  for r in s ]
 
 
+cur_rows =  [row for row in cur]
 
+#
+#   print [type(z) for z in row]
+#   [<type 'unicode'>, <type 'int'>, <type 'unicode'>, <type 'unicode'>, <type 'unicode'>, <type 'unicode'>]
+#   sys.exit(0)
+#
 
 """You can't slice a generator directly in python.
     You could use itertools.islice() as a helper function to do so.
@@ -63,9 +72,11 @@ try:
             'title':                "The relation " + rel_name, 
             'rel_name':             rel_name, 
             'classname':            "template library", 
-            'cur':              cur, 
+            #'cur':              cur, 
+            'cur_rows':              cur_rows, 
             'columns':              columns, 
-            'rowcount':         8,
+            'column_types':              columns, 
+            'rowcount':         12,
             'calling_filename':         filename,
             'tagline':      "Hyperfast relation and lightweight templating for the Python platform" 
             }

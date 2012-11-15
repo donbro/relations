@@ -11,7 +11,7 @@
  Target Server Version : 50515
  File Encoding         : utf-8
 
- Date: 11/13/2012 16:03:08 PM
+ Date: 11/15/2012 13:31:55 PM
 */
 
 SET NAMES utf8;
@@ -25,7 +25,9 @@ CREATE TABLE `domains` (
   `superdom_id` char(12) NOT NULL DEFAULT '',
   `dom_id` char(12) NOT NULL,
   `dom_name_id` char(12) NOT NULL,
-  PRIMARY KEY (`superdom_id`,`dom_name_id`)
+  `dom_seq_no` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`superdom_id`,`dom_name_id`),
+  UNIQUE KEY `dom_id` (`dom_id`,`dom_seq_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 delimiter ;;
 CREATE TRIGGER `trigger_before_insert_domains` BEFORE INSERT ON `domains` FOR EACH ROW BEGIN 
@@ -73,7 +75,7 @@ delimiter ;
 --  View structure for `domains_view`
 -- ----------------------------
 DROP VIEW IF EXISTS `domains_view`;
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `domains_view` AS select `d`.`dom_id` AS `dom_id`,`d`.`superdom_id` AS `superdom_id`,`a`.`name` AS `superdom_name`,`d`.`dom_name_id` AS `dom_name_id`,`b`.`name` AS `dom_name` from (((`domains` `d` left join `names` `b` on((`b`.`name_id` = `d`.`dom_name_id`))) left join `domains` `s` on((`d`.`superdom_id` = `s`.`dom_id`))) left join `names` `a` on((`s`.`dom_name_id` = `a`.`name_id`)));
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `domains_view` AS select `d`.`dom_id` AS `dom_id`,`d`.`dom_seq_no` AS `dom_seq_no`,`d`.`superdom_id` AS `superdom_id`,`a`.`name` AS `superdom_name`,`d`.`dom_name_id` AS `dom_name_id`,`b`.`name` AS `dom_name` from (((`domains` `d` left join `names` `b` on((`b`.`name_id` = `d`.`dom_name_id`))) left join `domains` `s` on((`d`.`superdom_id` = `s`.`dom_id`))) left join `names` `a` on((`s`.`dom_name_id` = `a`.`name_id`))) where (isnull(`s`.`dom_seq_no`) or (`s`.`dom_seq_no` = 1));
 
 -- ----------------------------
 --  View structure for `relations_view`
@@ -215,9 +217,9 @@ select  concat(   @n2, ' domain(s) found for name "', dom_name_in, '" and super 
 
 
 if @n2 = 0 THEN
---	select "gronk";
+ 
 
-	if @n3 >= 0 THEN
+	if @n3 > 0 THEN
 
 
 		select  concat(   @n3, ' top-level domain(s) found for name "', dom_name_in, '" and *no* super domain.'  ) as message ; 
@@ -235,17 +237,19 @@ if @n2 = 0 THEN
 	END if;
 
 
-		select  * from domains_view where  dom_id = @dom_id;
+--		select  * from domains_view where  dom_id = @dom_id;
 
 else
---	select "grink";
+ 
 
 	set @dom_id = (select dom_id from domains where superdom_id = @superdom_id and  dom_name_id = @dom_name_id) ;
 
-	select * from domains_view where superdom_id = @superdom_id and  dom_name_id = @dom_name_id  ;
-	select * from domains_view where dom_id = @dom_id  ;
+--	select * from domains_view where superdom_id = @superdom_id and  dom_name_id = @dom_name_id  ;
+--	select * from domains_view where dom_id = @dom_id  ;
 
 end if;
+
+select  * from domains_view where  dom_id = @dom_id;
 
 
 end
